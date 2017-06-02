@@ -1,7 +1,28 @@
-function GuildRankPermissionsBatchEdit:SetRepairs()
-  for idx, guild in pairs(GuildLib.GetGuilds()) do
-    
+local GuildRankPermissionsBatchEdit = {}
+
+function GuildRankPermissionsBatchEdit:SetRepairsCmd(strCmd, strParam)
+  local nAmount = tonumber(strParam)
+  if not nAmount or nAmount < 0 then
+    Print("Invalid amount")
+    return
   end
+  for idx, guild in ipairs(GuildLib.GetGuilds()) do
+    self:DoStuff(guild, nAmount)
+  end
+end
+
+function GuildRankPermissionsBatchEdit:DoStuff(guild, nAmount)
+  if guild:GetType() ~= GuildLib.GuildType_Guild then return end
+  for idx, tRank in ipairs(guild:GetRanks()) do
+    if tRank.strName ~= "" then
+      self:SetRepairs(guild, idx, nAmount)
+    end
+  end
+end
+
+function GuildRankPermissionsBatchEdit:SetRepairs(guild, nRank, nAmount)
+  Print("Here with "..tostring(nRank).." and "..tostring(nAmount))
+  -- guild:SetRankBankMoneyLimit(nRank, nAmount)
 end
 
 function GuildRankPermissionsBatchEdit:new(o)
@@ -16,7 +37,7 @@ function GuildRankPermissionsBatchEdit:Init()
 end
 
 function GuildRankPermissionsBatchEdit:OnLoad()
-  Apollo.RegisterSlashCommand("setrepairs", "SetRepairs", self)
+  Apollo.RegisterSlashCommand("setrepairs", "SetRepairsCmd", self)
 end
 
 local GuildRankPermissionsBatchEditInst = GuildRankPermissionsBatchEdit:new()
