@@ -1,28 +1,46 @@
 local GuildRankPermissionsBatchEdit = {}
 
-function GuildRankPermissionsBatchEdit:SetRepairsCmd(strCmd, strParam)
-  local nAmount = tonumber(strParam)
-  if not nAmount or nAmount < 0 then
-    Print("Invalid amount")
-    return
-  end
+local ktRankAmounts = {}
+
+ktRankAmounts[1]  = 2000000
+ktRankAmounts[2]  = 2000000
+ktRankAmounts[3]  = 2000000
+ktRankAmounts[4]  = 1500000
+ktRankAmounts[5]  = 100000
+ktRankAmounts[6]  = 100000
+ktRankAmounts[7]  = 750000
+ktRankAmounts[8]  = 0
+ktRankAmounts[9]  = 0
+ktRankAmounts[10] = 0
+
+function GuildRankPermissionsBatchEdit:EnableRepairs()
+  self:DoStuff(true)
+end
+
+function GuildRankPermissionsBatchEdit:DisableRepairs()
+  self:DoStuff(false)
+end
+
+function GuildRankPermissionsBatchEdit:DoStuff(bEnable)
   for idx, guild in ipairs(GuildLib.GetGuilds()) do
-    self:DoStuff(guild, nAmount)
+    self:ActOnGuild(guild, bEnable)
   end
 end
 
-function GuildRankPermissionsBatchEdit:DoStuff(guild, nAmount)
+function GuildRankPermissionsBatchEdit:ActOnGuild(guild, bEnable)
   if guild:GetType() ~= GuildLib.GuildType_Guild then return end
   for idx, tRank in ipairs(guild:GetRanks()) do
-    if tRank.strName ~= "" then
-      self:SetRepairs(guild, idx, nAmount)
-    end
+    if tRank.bValid then self:SetRepairs(guild, bEnable, idx) end
   end
 end
 
-function GuildRankPermissionsBatchEdit:SetRepairs(guild, nRank, nAmount)
-  Print("Here with "..tostring(nRank).." and "..tostring(nAmount))
-  -- guild:SetRankBankMoneyLimit(nRank, nAmount)
+function GuildRankPermissionsBatchEdit:SetRepairs(guild, bEnable, nRank)
+  if nRank < 5 then return end
+  local monAmount = Money.new()
+  if bEnable then
+    monAmount:SetAmount(ktRankAmounts[nRank])
+  end
+  guild:SetRankBankRepairLimit(nRank, monAmount)
 end
 
 function GuildRankPermissionsBatchEdit:new(o)
@@ -37,7 +55,8 @@ function GuildRankPermissionsBatchEdit:Init()
 end
 
 function GuildRankPermissionsBatchEdit:OnLoad()
-  Apollo.RegisterSlashCommand("setrepairs", "SetRepairsCmd", self)
+  Apollo.RegisterSlashCommand("enablerepairs", "EnableRepairs", self)
+  Apollo.RegisterSlashCommand("disablerepairs", "DisableRepairs", self)
 end
 
 local GuildRankPermissionsBatchEditInst = GuildRankPermissionsBatchEdit:new()
