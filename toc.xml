@@ -1,0 +1,3 @@
+<Addon Author="Aramunn" APIVersion="15" Version="@project-version@" Name="GuildRankPermissionsBatchEdit" Description="Gives the ability to edit multiple guild rank permissions at the same time">
+    <Script Name="GuildRankPermissionsBatchEdit.lua"/>
+</Addon>
